@@ -27,10 +27,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 NetworkState.NetworkStateStatus.RUNNING -> {
 
                 }
-                NetworkState.NetworkStateStatus.SUCCESS -> {
-                    NavigationService.launchMainActivity(this, true)
-                    finish()
-                }
+                NetworkState.NetworkStateStatus.SUCCESS,
                 NetworkState.NetworkStateStatus.ERROR -> {
                     NavigationService.launchMainActivity(this)
                     finish()

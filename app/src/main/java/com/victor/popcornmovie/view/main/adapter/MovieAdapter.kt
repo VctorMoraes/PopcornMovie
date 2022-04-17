@@ -11,7 +11,7 @@ import com.victor.popcornmovie.model.MovieModel
 class MovieAdapter(private val openFragment: (movie: MovieModel) -> Unit) :
     RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
-    var movieList: ArrayList<MovieModel> = ArrayList()
+    private var movieList: ArrayList<MovieModel> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
         return MovieViewHolder.create(parent, openFragment)
@@ -48,7 +48,7 @@ class MovieAdapter(private val openFragment: (movie: MovieModel) -> Unit) :
         fun bind(movie: MovieModel) {
             viewBinding.apply {
                 Glide.with(viewBinding.root)
-                    .load("https://image.tmdb.org/t/p/w500" + movie.posterPath)
+                    .load(IMAGE_BASE_URL + movie.posterPath)
                     .centerInside()
                     .placeholder(R.drawable.image_placeholder)
                     .error(R.drawable.image_placeholder)
@@ -63,6 +63,8 @@ class MovieAdapter(private val openFragment: (movie: MovieModel) -> Unit) :
         }
 
         companion object {
+            const val IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
+
             fun create(
                 parent: ViewGroup,
                 openFragment: (movie: MovieModel) -> Unit

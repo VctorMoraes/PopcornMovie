@@ -5,12 +5,10 @@ object Versions {
 
     const val androidCore = "1.7.0"
     const val appcompat = "1.4.1"
-    const val acticity = "1.4.0"
+    const val activity = "1.4.0"
     const val material = "1.5.0"
     const val constraintLayout = "2.1.3"
     const val viewModelLifecycle = "2.4.0"
-
-    const val rxjava = "3.0.0"
 
     const val glide = "4.13.0"
 
@@ -30,16 +28,10 @@ object Versions {
 object AndroidX {
     const val androidCore = "androidx.core:core-ktx:${Versions.androidCore}"
     const val appcompat = "androidx.appcompat:appcompat:${Versions.appcompat}"
-    const val activity = "androidx.activity:activity-ktx:${Versions.acticity}"
+    const val activity = "androidx.activity:activity-ktx:${Versions.activity}"
     const val material = "com.google.android.material:material:${Versions.material}"
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val viewModelLifecycle = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.viewModelLifecycle}"
-}
-
-object RxJava {
-    const val rxAndroid = "io.reactivex.rxjava3:rxandroid:${Versions.rxjava}"
-    const val rxJava = "io.reactivex.rxjava3:rxjava:${Versions.rxjava}"
-    const val rxJavaRetrofitAdapter = "com.github.akarnokd:rxjava3-retrofit-adapter:${Versions.rxjava}"
 }
 
 object Glide {
@@ -63,7 +55,6 @@ object Retrofit {
     const val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     const val retrofitGson = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
     const val okHttp = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttp}"
-
 }
 
 

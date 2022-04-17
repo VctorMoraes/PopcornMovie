@@ -36,50 +36,56 @@ class MovieFragment : Fragment() {
         setupView()
     }
 
+    private fun getYearFromDate(date: String): Int {
+        val calendar = GregorianCalendar()
+        val dateFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
+        calendar.time = dateFormat.parse(date) ?: Date()
+        return calendar.get(Calendar.YEAR)
+    }
+
+    private fun glideListener(): RequestListener<Drawable> = object : RequestListener<Drawable> {
+        override fun onLoadFailed(
+            e: GlideException?,
+            model: Any?,
+            target: Target<Drawable>?,
+            isFirstResource: Boolean
+        ): Boolean {
+            startPostponedEnterTransition()
+            return false
+        }
+
+        override fun onResourceReady(
+            resource: Drawable?,
+            model: Any?,
+            target: Target<Drawable>?,
+            dataSource: DataSource?,
+            isFirstResource: Boolean
+        ): Boolean {
+            startPostponedEnterTransition()
+            return false
+        }
+    }
+
     private fun setupView() {
         viewBinding?.apply {
             (activity as MainActivity).clickedMovie?.let { movie ->
-                val calendar = GregorianCalendar()
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val date = dateFormat.parse(movie.releaseDate)
-
-                date?.let {
-                    calendar.time
-                }
-
                 movieTitle.text = movie.title
-                movieYear.text = calendar.get(Calendar.YEAR).toString()
+                movieYear.text = getYearFromDate(movie.releaseDate).toString()
                 movieOverview.text = movie.overview
 
                 Glide.with(root)
-                    .load("https://image.tmdb.org/t/p/w500" + movie.posterPath)
+                    .load(IMAGE_BASE_URL + movie.posterPath)
                     .centerInside()
                     .placeholder(R.drawable.image_placeholder)
                     .error(R.drawable.image_placeholder)
-                    .listener(object : RequestListener<Drawable> {
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            startPostponedEnterTransition()
-                            return false
-                        }
-
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            startPostponedEnterTransition()
-                            return false
-                        }
-                    })
+                    .listener(glideListener())
                     .into(moviePoster)
             }
         }
+    }
+
+    companion object {
+        const val IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
+        const val DATE_FORMAT = "yyyy-MM-dd"
     }
 }

@@ -23,7 +23,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private val fragment = MovieFragment()
     private lateinit var toggle: ActionBarDrawerToggle
 
-    private var genreSelected: GenreModel = GenreModel(0, "Trending")
+    lateinit var genreSelected: GenreModel
 
     var loadMore = false
     var clickedMovie: MovieModel? = null
@@ -34,6 +34,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
+        genreSelected = GenreModel(0, getString(R.string.trending))
         setupView()
         initiateObservers()
         initiateNavigationListeners()
