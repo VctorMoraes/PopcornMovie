@@ -16,6 +16,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Popcorn Movie"
 include(":app")
+include(":feature:home")
 include(":core:common")
 include(":core:database")
 include(":core:model")
