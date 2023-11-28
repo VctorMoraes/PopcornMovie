@@ -1,8 +1,8 @@
 package com.victor.popcornmovie.local.dao
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.victor.popcornmovie.local.PopcornMovieDatabase
-import com.victor.popcornmovie.local.entities.Genre
+import com.victor.core.network.database.PopcornMovieDatabase
+import com.victor.data.genres.datasource.local.entities.Genre
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.test.runTest
@@ -21,9 +21,9 @@ class GenreDaoTest {
 
     @Inject
     @Named("test_database")
-    lateinit var database: PopcornMovieDatabase
+    lateinit var database: com.victor.core.network.database.PopcornMovieDatabase
 
-    private lateinit var genreDao: GenreDao
+    private lateinit var genreDao: com.victor.core.database.dao.GenreDao
 
     @Before
     fun setup() {
@@ -33,7 +33,7 @@ class GenreDaoTest {
 
     @Test
     fun insertAll() = runTest {
-        val genre = Genre(
+        val genre = com.victor.data.genres.datasource.local.entities.Genre(
             id = 1,
             name = "Action"
         )

@@ -1,33 +1,38 @@
 package com.victor.popcornmovie.view.main
 
 import android.os.Bundle
+import android.view.Menu
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.victor.core.model.GenreModel
+import com.victor.core.model.MovieModel
 import com.victor.popcornmovie.R
 import com.victor.popcornmovie.databinding.ActivityMainBinding
-import com.victor.popcornmovie.model.GenreModel
-import com.victor.popcornmovie.model.MovieModel
 import com.victor.popcornmovie.view.base.BaseActivity
 import com.victor.popcornmovie.view.main.adapter.MovieAdapter
 import com.victor.popcornmovie.view.main.fragment.MovieFragment
+import com.victor.popcornmovie.view.main.viewmodel.HomeUiState
+import com.victor.popcornmovie.view.main.viewmodel.MainViewModel
+import com.victor.popcornmovie.view.main.viewmodel.UiAction
 import dagger.hilt.android.AndroidEntryPoint
-
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>() {
     private val viewModel: MainViewModel by viewModels()
     private val movieAdapter: MovieAdapter by lazy { MovieAdapter(this::openFragment) }
+
     private val fragment = MovieFragment()
     private lateinit var toggle: ActionBarDrawerToggle
 
-    lateinit var genreSelected: GenreModel
+    private lateinit var genreSelected: GenreModel
 
-    var loadMore = false
     var clickedMovie: MovieModel? = null
-    var hasFragmentOpen: Boolean = false
+    private var hasFragmentOpen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,93 +40,100 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         setContentView(viewBinding.root)
 
         genreSelected = GenreModel(0, getString(R.string.trending))
+
         setupView()
-        initiateObservers()
+        setupUi()
         initiateNavigationListeners()
         setupRecyclerView()
-        viewModel.loadGenres()
-        viewModel.loadMovies()
+        setupPaging()
     }
 
-    override fun onBackPressed() {
+    private fun setupView() {
         viewBinding.apply {
-            when {
-                drawerLayout.isOpen -> {
-                    drawerLayout.close()
-                }
-                hasFragmentOpen -> {
-                    returnFromFragment()
-                }
-                else -> super.onBackPressed()
-            }
+            setupActionBar()
+            setupActionBarDrawer()
         }
     }
 
-    private fun initiateObservers() {
-        observe(viewModel.genreList) {
-            createGenreMenu(it)
-        }
-        observe(viewModel.movieList) {
-            movieAdapter.configure(it, loadMore)
-        }
+    private fun ActivityMainBinding.setupActionBar() {
+        setSupportActionBar(toolbar.appBar)
     }
 
-    private fun createGenreMenu(genreList: ArrayList<GenreModel>) {
-        val menu = viewBinding.navigationView.menu
+    private fun ActivityMainBinding.setupActionBarDrawer() {
+        toggle = ActionBarDrawerToggle(
+            this@MainActivity,
+            drawerLayout,
+            toolbar.appBar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
 
-        genreList.forEachIndexed { index, genreModel ->
-            menu.addSubMenu(index + 1, genreModel.id, genreModel.id, genreModel.name)
-            menu.add(index + 1, genreModel.id, genreModel.id, genreModel.name)
-        }
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
     }
 
     private fun setupRecyclerView() {
         viewBinding.movieRecyclerView.apply {
             layoutManager = GridLayoutManager(this@MainActivity, 2)
             adapter = movieAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    val manager = layoutManager as GridLayoutManager
-
-                    if (manager.findLastCompletelyVisibleItemPosition() == (adapter as MovieAdapter).itemCount - 1) {
-                        loadMore = true
-                        viewModel.loadMovies(genreSelected.id, loadMore)
-                    }
-                }
-            })
         }
     }
 
-    private fun setupView() {
+    private fun setupPaging() {
+        lifecycleScope.launch {
+            viewModel.moviesPagingDataFlow.collectLatest(movieAdapter::submitData)
+        }
+    }
+
+    private fun setupUi() {
+        observe(viewModel.homeUiState) {
+            updateUi(it)
+        }
+    }
+
+    private fun updateUi(stateUi: HomeUiState) {
+        supportActionBar?.title = stateUi.selectedGenreName
+        createGenreMenu(stateUi.genreList)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
         viewBinding.apply {
-            setSupportActionBar(toolbar.appBar)
-            supportActionBar?.title = genreSelected.name
+            when {
+                drawerLayout.isOpen -> {
+                    drawerLayout.close()
+                }
 
-            toggle = ActionBarDrawerToggle(
-                this@MainActivity,
-                drawerLayout,
-                toolbar.appBar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close
-            )
+                hasFragmentOpen -> {
+                    returnFromFragment()
+                }
 
-            drawerLayout.addDrawerListener(toggle)
-            toggle.syncState()
+                else -> super.onBackPressed()
+            }
+        }
+    }
+
+    private fun createGenreMenu(genreList: List<GenreModel>) {
+        val menu = viewBinding.navigationView.menu
+
+        genreList.forEachIndexed { index, genreModel ->
+            menu.addSubMenu(index + 1, genreModel.id, Menu.NONE, genreModel.name)
+            menu.add(index + 1, genreModel.id, Menu.NONE, genreModel.name)
         }
     }
 
     private fun initiateNavigationListeners() {
         viewBinding.apply {
             navigationView.setNavigationItemSelectedListener { item ->
-                genreSelected = GenreModel(item.itemId, item.title.toString())
-                loadMore = false
 
-                supportActionBar?.title = genreSelected.name
-                viewModel.loadMovies(genreSelected.id)
+                //Todo: Refactor this shit logic
+                val genreId = when (item.itemId) {
+                    0 -> null
+                    else -> item.itemId
+                }
 
-                val linearManager = movieRecyclerView.layoutManager
-                linearManager?.smoothScrollToPosition(movieRecyclerView, RecyclerView.State(), 0)
+                viewModel.uiActions(UiAction.GenreSelected(genreId, item.title.toString()))
+                movieRecyclerView.smoothScrollToPosition(0)
                 drawerLayout.close()
                 true
             }

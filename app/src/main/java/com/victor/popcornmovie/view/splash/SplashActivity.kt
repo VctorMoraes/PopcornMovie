@@ -17,8 +17,10 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
         viewBinding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
 
-        initiateObservers()
-        viewModel.loadGenres()
+        NavigationService.launchMainActivity(this)
+        finish()
+//        initiateObservers()
+//        viewModel.loadGenres()
     }
 
     private fun initiateObservers() {

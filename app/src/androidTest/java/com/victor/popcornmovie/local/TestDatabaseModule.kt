@@ -17,7 +17,7 @@ class TestDatabaseModule {
     @Named("test_database")
     fun provideDatabase(@ApplicationContext context: Context) =
         Room.inMemoryDatabaseBuilder(
-            context, PopcornMovieDatabase::class.java
+            context, com.victor.core.network.database.PopcornMovieDatabase::class.java
         ).allowMainThreadQueries()
             .build()
 }
