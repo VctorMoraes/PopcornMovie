@@ -5,6 +5,8 @@ import android.view.Menu
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.victor.core.model.GenreModel
@@ -19,6 +21,7 @@ import com.victor.popcornmovie.view.main.viewmodel.MainViewModel
 import com.victor.popcornmovie.view.main.viewmodel.UiAction
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -86,12 +89,26 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     private fun setupUi() {
-        observe(viewModel.homeUiState) {
-            updateUi(it)
+        lifecycleScope.launch {
+            viewModel.homeUiState
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .distinctUntilChanged()
+                .collect { uiState ->
+                    when (uiState) {
+                        is HomeUiState.Success -> updateUi(uiState)
+                        HomeUiState.Loading -> {
+                            // TODO()
+                        }
+
+                        HomeUiState.Error -> {
+                            // TODO()
+                        }
+                    }
+                }
         }
     }
 
-    private fun updateUi(stateUi: HomeUiState) {
+    private fun updateUi(stateUi: HomeUiState.Success) {
         supportActionBar?.title = stateUi.selectedGenreName
         createGenreMenu(stateUi.genreList)
     }
@@ -125,14 +142,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun initiateNavigationListeners() {
         viewBinding.apply {
             navigationView.setNavigationItemSelectedListener { item ->
-
-                //Todo: Refactor this shit logic
-                val genreId = when (item.itemId) {
-                    0 -> null
-                    else -> item.itemId
-                }
-
-                viewModel.uiActions(UiAction.GenreSelected(genreId, item.title.toString()))
+                viewModel.uiActions(UiAction.GenreSelected(item.itemId, item.title.toString()))
                 movieRecyclerView.smoothScrollToPosition(0)
                 drawerLayout.close()
                 true

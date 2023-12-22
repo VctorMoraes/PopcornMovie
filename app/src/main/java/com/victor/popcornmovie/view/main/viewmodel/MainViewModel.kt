@@ -1,12 +1,12 @@
 package com.victor.popcornmovie.view.main.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.victor.core.common.result.fold
+import com.victor.core.model.GenreModel
 import com.victor.core.model.MovieModel
 import com.victor.domain.genres.GetGenresUseCase
 import com.victor.domain.movies.GetMoviesUseCase
@@ -14,11 +14,15 @@ import com.victor.popcornmovie.view.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,39 +30,22 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val getMoviesUseCase: GetMoviesUseCase,
     private val getGenresUseCase: GetGenresUseCase,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
 
-    private val initialHomeUiState: HomeUiState by lazy { HomeUiState() }
-    private val _homeUiState: MutableLiveData<HomeUiState> = MutableLiveData(initialHomeUiState)
+    private val actionStateFlow = MutableSharedFlow<UiAction>()
 
-    val homeUiState: LiveData<HomeUiState> //Todo: Refactor to Flow
-        get() = _homeUiState
+    private val _homeUiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState.Loading)
+    val homeUiState: StateFlow<HomeUiState>
+        get() = _homeUiState.asStateFlow()
 
     val uiActions: (UiAction) -> Unit
 
-    val moviesPagingDataFlow: Flow<PagingData<MovieModel>>
+    lateinit var moviesPagingDataFlow: Flow<PagingData<MovieModel>>
 
     init {
-        val lastSelectedGenre: Int? = savedStateHandle[LAST_SELECTED_GENRE_ID]
-
-        loadGenres()
-
-        val actionStateFlow = MutableSharedFlow<UiAction>()
-        val selectedGenresFlow =
-            actionStateFlow
-                .filterIsInstance<UiAction.GenreSelected>()
-                .distinctUntilChanged()
-                .onStart { emit(UiAction.GenreSelected(genreId = lastSelectedGenre)) }
-
-        moviesPagingDataFlow = selectedGenresFlow.flatMapLatest { genreSelected ->
-            genreSelected.genreName?.let { genreName ->
-                _homeUiState.value = _homeUiState.value?.copy(
-                    selectedGenreName = genreName
-                )
-            }
-            getMoviesUseCase(genreId = genreSelected.genreId)
-        }.cachedIn(viewModelScope)
+        collectGenres()
+        collectMoviesByGenre()
 
         uiActions = { uiAction ->
             viewModelScope.launch {
@@ -67,15 +54,63 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun loadGenres() {
-        viewModelScope.launch {
-            getGenresUseCase().collectLatest {
-                it.fold({ genresList ->
-                    _homeUiState.value = _homeUiState.value?.copy(
-                        genreList = genresList
+    private fun selectGenreFlow(): Flow<UiAction.GenreSelected> {
+        val lastSelectedGenreId: Int? = savedStateHandle[LAST_SELECTED_GENRE_ID]
+        val lastSelectedGenreName: String? = savedStateHandle[LAST_SELECTED_GENRE_NAME]
+
+        return actionStateFlow
+            .filterIsInstance<UiAction.GenreSelected>()
+            .distinctUntilChanged()
+            .onStart {
+                emit(
+                    UiAction.GenreSelected(
+                        genreId = lastSelectedGenreId,
+                        genreName = lastSelectedGenreName ?: ""
                     )
+                )
+            }
+    }
+
+    private fun collectMoviesByGenre() {
+        moviesPagingDataFlow = selectGenreFlow().flatMapLatest { genreSelected ->
+            _homeUiState.update { uiState ->
+                when (uiState) {
+                    is HomeUiState.Success -> {
+                        uiState.copy(selectedGenreName = genreSelected.genreName)
+                    }
+
+                    HomeUiState.Loading,
+                    HomeUiState.Error -> {
+                        HomeUiState.Success(selectedGenreName = genreSelected.genreName)
+                    }
+                }
+            }
+
+            Log.d("MainViewModel", "Searching ${genreSelected.genreName} movies")
+            getMoviesUseCase(genreId = genreSelected.genreId)
+        }.cachedIn(viewModelScope)
+    }
+
+    private fun collectGenres() {
+        viewModelScope.launch {
+            getGenresUseCase().collectLatest { resultGenreList ->
+                resultGenreList.fold({ genresList ->
+                    _homeUiState.update { uiState ->
+                        when (uiState) {
+                            is HomeUiState.Success -> {
+                                uiState.copy(genreList = genresList)
+                            }
+
+                            HomeUiState.Loading,
+                            HomeUiState.Error -> {
+                                HomeUiState.Success(genreList = genresList)
+                            }
+                        }
+                    }
                 }, {
-                    TODO()
+                    _homeUiState.update {
+                        HomeUiState.Error
+                    }
                 })
             }
         }
@@ -83,9 +118,10 @@ class MainViewModel @Inject constructor(
 
     companion object {
         private const val LAST_SELECTED_GENRE_ID = "last_selected_genre_id"
+        private const val LAST_SELECTED_GENRE_NAME = "last_selected_genre_name"
     }
 }
 
 sealed class UiAction {
-    data class GenreSelected(val genreId: Int? = null, val genreName: String? = null) : UiAction()
+    data class GenreSelected(val genreId: Int?, val genreName: String) : UiAction()
 }
