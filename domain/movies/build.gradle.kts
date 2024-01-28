@@ -10,5 +10,5 @@ android {
 dependencies {
     implementation(project(":core:model"))
     implementation(project(":data:movies"))
-    implementation("androidx.paging:paging-runtime-ktx:3.2.0")
+    implementation(libs.androidx.paging.common.ktx)
 }

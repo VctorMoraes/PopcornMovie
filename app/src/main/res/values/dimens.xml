@@ -1,9 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="splash_icon_size">200dp</dimen>
-    <dimen name="fragment_image_height">250dp</dimen>
-
-    <dimen name="layout_margin_8">8dp</dimen>
-    <dimen name="layout_margin_16">16dp</dimen>
-
 </resources>

@@ -30,7 +30,6 @@ room = "2.6.0"
 secrets = "2.0.1"
 turbine = "0.12.1"
 
-
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidxAppCompat" }
@@ -45,7 +44,9 @@ androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "li
 androidx-material2 = { group = "com.google.android.material", name = "material", version.ref = "material2" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "androidxNavigation" }
+androidx-paging-common-ktx = { group = "androidx.paging", name = "paging-common-ktx", version = "3.2.1" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
+androidx-viewbinding = { group = "androidx.databinding", name = "viewbinding", version = "8.2.0" }
 constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout"}
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide"}
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -66,12 +67,15 @@ room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
-
 # Dependencies of the included build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
+androidx-paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version = "3.2.1" }
+androidx-coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version = "1.2.0" }
+androidx-drawerlayout = { group = "androidx.drawerlayout", name = "drawerlayout", version = "1.2.0" }
+material = { group = "com.google.android.material", name = "material", version = "1.11.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

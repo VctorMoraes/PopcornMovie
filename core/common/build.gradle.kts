@@ -6,4 +6,8 @@ plugins {
 android {
     namespace = "com.victor.core.commom"
 }
+dependencies {
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.viewbinding)
+}
 
