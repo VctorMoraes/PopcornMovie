@@ -35,6 +35,10 @@ gradlePlugin {
             id = "popcornmovie.android.application"
             implementationClass = "AndroidApplicationConventionPlugin"
         }
+        register("androidFeature") {
+            id = "popcornmovie.android.feature"
+            implementationClass = "AndroidFeatureConventionPlugin"
+        }
         register("androidHilt") {
             id = "popcornmovie.android.hilt"
             implementationClass = "AndroidHiltConventionPlugin"
@@ -46,6 +50,10 @@ gradlePlugin {
         register("androidLibrary") {
             id = "popcornmovie.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        register("androidLibraryCompose") {
+            id = "popcornmovie.android.library.compose"
+            implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
     }
 }

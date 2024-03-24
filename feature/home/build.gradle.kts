@@ -1,6 +1,6 @@
 plugins {
-    id("popcornmovie.android.library")
-    id("popcornmovie.android.hilt")
+    id("popcornmovie.android.feature")
+    id("popcornmovie.android.library.compose")
 }
 
 android {
@@ -18,11 +18,12 @@ dependencies {
     implementation(project(":domain:genres"))
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.coordinatorlayout)
     implementation(libs.androidx.drawerlayout)
-    implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.constraintLayout)
     implementation(libs.glide)
     implementation(libs.material)
+    implementation(libs.androidx.paging.compose)
 }

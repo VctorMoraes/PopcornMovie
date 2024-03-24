@@ -1,32 +1,33 @@
 [versions]
 androidGradlePlugin = "8.0.2"
-androidxActivity = "1.8.1"
+androidxActivity = "1.8.2"
 androidxAppCompat = "1.6.1"
-androidxComposeBom = "2023.10.01"
+androidxComposeBom = "2024.02.00"
 androidxComposeCompiler = "1.5.0"
 androidxCore = "1.12.0"
 androidxCoreSplashscreen = "1.0.1"
 androidxEspresso = "3.5.1"
 androidxHiltNavigationCompose = "1.1.0"
-androidxLifecycle = "2.6.2"
-androidxNavigation = "2.7.5"
+androidxLifecycle = "2.7.0"
+androidxNavigation = "2.7.7"
+coil = "2.6.0"
 constraintLayout = "2.1.4"
 glide = "4.13.0"
 hilt = "2.47"
 hiltExt = "1.1.0"
 junit = "1.1.5"
 junit4 = "4.13.2"
-kotlin = "1.9.10"
-kotlinxCoroutines = "1.6.4"
+kotlin = "1.9.0"
+kotlinxCoroutines = "1.7.1"
 kotlinxSerializationJson = "1.5.1"
 ksp = "1.9.10-1.0.13"
-lint = "31.1.4"
-material2 = "1.12.0-alpha01"
+lint = "31.2.2"
+material2 = "1.12.0-alpha03"
 okhttp = "4.10.0"
 org-jetbrains-kotlin-android = "1.9.0"
 retrofit = "2.9.0"
 retrofitKotlinxSerializationJson = "1.0.0"
-room = "2.6.0"
+room = "2.6.1"
 secrets = "2.0.1"
 turbine = "0.12.1"
 
@@ -45,10 +46,11 @@ androidx-material2 = { group = "com.google.android.material", name = "material",
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "androidxNavigation" }
 androidx-paging-common-ktx = { group = "androidx.paging", name = "paging-common-ktx", version = "3.2.1" }
+androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version = "3.2.1" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 androidx-viewbinding = { group = "androidx.databinding", name = "viewbinding", version = "8.2.0" }
-constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout"}
-glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide"}
+constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintLayout" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
@@ -69,6 +71,8 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 
 # Dependencies of the included build-logic
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }

@@ -10,10 +10,12 @@ class GetMoviesUseCase @Inject constructor(
     private val getPopularMoviesUseCase: GetPopularMoviesUseCase,
     private val getMoviesByGenreUseCase: GetMoviesByGenreUseCase,
 ) {
-    operator fun invoke(genreId: Int? = null): Flow<PagingData<MovieModel>> {
-        return genreId?.let {
-            getMoviesByGenreUseCase(it)
-        } ?: getPopularMoviesUseCase()
+    operator fun invoke(genreId: Int?): Flow<PagingData<MovieModel>> {
+        return when (genreId) {
+            null,
+            0 -> getPopularMoviesUseCase()
 
+            else -> getMoviesByGenreUseCase(genreId)
+        }
     }
 }

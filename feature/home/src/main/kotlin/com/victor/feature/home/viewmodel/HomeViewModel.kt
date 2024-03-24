@@ -6,10 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.victor.core.common.result.fold
-import com.victor.core.model.MovieModel
 import com.victor.domain.genres.GetGenresUseCase
 import com.victor.domain.movies.GetMoviesUseCase
+import com.victor.feature.home.viewmodel.uiState.HomeUiState
+import com.victor.feature.home.viewmodel.uiState.MovieDetails
+import com.victor.feature.home.viewmodel.uiState.toSuccessUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,6 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -40,7 +44,7 @@ class MainViewModel @Inject constructor(
 
     val uiActions: (UiAction) -> Unit
 
-    lateinit var moviesPagingDataFlow: Flow<PagingData<MovieModel>>
+    lateinit var moviesPagingDataFlow: Flow<PagingData<MovieDetails>>
 
     init {
         collectGenres()
@@ -86,15 +90,17 @@ class MainViewModel @Inject constructor(
             }
 
             Log.d("MainViewModel", "Searching ${genreSelected.genreName} movies")
-            getMoviesUseCase(
-                genreId = genreSelected.genreId.let { genreId ->
-                    when (genreId) {
-                        0 -> null
-                        else -> genreId
-                    }
-                }
-            )
+
+            getMovieDetailsUiState(genreSelected.genreId)
         }.cachedIn(viewModelScope)
+    }
+
+    private fun getMovieDetailsUiState(genreId: Int?): Flow<PagingData<MovieDetails>> {
+        return getMoviesUseCase(genreId = genreId).map { pagingData ->
+            pagingData.map { movieModel ->
+                movieModel.toSuccessUiState()
+            }
+        }
     }
 
     private fun collectGenres() {

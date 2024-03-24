@@ -1,4 +1,4 @@
-package com.victor.feature.home.viewmodel
+package com.victor.feature.home.viewmodel.uiState
 
 import com.victor.core.model.GenreModel
 
